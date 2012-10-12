@@ -91,6 +91,22 @@ The database structure described above has an important consequence: when
 speaking to Vim ChatBot, never use a triple colon (:::) symbol in your phrases,
 they will confuse the bot and may make it behave more stupidly than normal.
 
+In the beginning of the conversation, the bot might seem not to recognize some
+of the phrases you taught it before - this is due to the magical contexts
+kicking in, the bot hasn't yet been taught to recognize that specific phrase in
+that particular position. This is normal behavior, just patiently repeat the
+lesson.
+
+If you have a Python-enabled version of Vim, ChatBot will utilize the Python
+random number generation algorithm from the "random" library. If your Vim is not
+Python-enabled, a simpler algorithm will be utilized instead, based on the idea
+suggested by Bee-9 at:
+http://vim.1045645.n5.nabble.com/simple-16-bit-random-number-generator-td2843842.html
+This algorithm is less efficient and will produce less random numbers, which may
+or may not be apparent in the actual conversation with the bot (your mileage may
+vary). At any rate, a Python-enabled Vim is recommended for more randomness, but
+not strictly required.
+
 ==============================================================================
 Remember: Don't take Vim ChatBot seriously and just have fun! :)
 
