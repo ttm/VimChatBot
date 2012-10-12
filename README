@@ -1,0 +1,124 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=4264
+
+Agetian's Vim ChatBot (C) 2012 by Michael Kamensky, all rights reserved.
+This script is distributed under Vim license.
+==============================================================================
+
+Vim ChatBot is a simple self-teaching chat bot game for Vim. It will try to
+communicate with the human and will accumulate the human's questions and answers
+over time, utilizing them later and trying to mimic human behavior. This chat
+bot is not meant to be smart, at best it resembles a talking parrot and it's far
+from being a real human-like chat robot companion. It's meant to be fun and it
+was originally intended as a little project to teach myself how to script Vim.
+
+IMPORTANT -- READ BEFORE USING OR DON'T TELL ME YOU WERE NOT WARNED:
+====================================================================
+
+Vim ChatBot will use the currently open file in the buffer as a source and as a
+target for its database of known questions and replies! It will automatically
+append new lines to the end of the current file as it learns the phrases from
+the human! Therefore, if you were working on some important document prior to
+starting the chat bot, make sure you switch to a new document or open your chat
+database before initiating a conversation.
+ 
+Vim ChatBot will never automatically save the file for you though, and it's
+always up to you to decide if you want to save the updated database or not. You
+should do it explicitly using the :write (or another command) to save the file. 
+
+Vim ChatBot utilizes the concept of a here-document (similar to here-documents
+in bash) to be able to store its database of known questions and replies in the
+script file itself. When VimChatBot.vim is opened in Vim, the chat bot will
+automatically append new entries to the end of the script file as it learns new
+phrases from you, and it will not corrupt the script file. If you'd like to keep
+the updated database, you need to make sure you save the script file (:w or :x)
+after you're done chatting.
+
+Starting the Vim ChatBot
+========================
+
+By default, Vim ChatBot maps itself to the <Leader>Cb command in normal mode
+(<Leader> is the backslash symbol by default, so unless you've changed your
+leader, the default command to start Vim Chatbot is \Cb ).
+
+If the <Leader>Cb command is already taken by something among your scripts, feel
+free to change the mapping (just search for nnoremap in the script file and
+change the mapping to another combination of keys).
+
+Macros
+======
+
+You can use the following macros when typing answers, the bot will also utilize
+them when learning to use the phrase from you:
+
+$TIME$ - refers to the current time.
+$TIME12$ - (experimental) refers to the current time in 12-hour format.
+$DAY$ - refers to the current day.
+$WEEKDAY$ - refers to the current day of the week.
+$MONTH$ - refers to the current month.
+$YEAR$ - refers to the current year.
+
+Finishing the conversation
+==========================
+
+To finish the conversation, type /Q into the "You Say:" prompt. Unless you are
+asked something (or told something) by the bot and it's waiting for you to teach
+it how to reply to that, /Q will end the conversation immediately. If, however,
+the bot is waiting for your reply to learn something from you, /Q will merely
+inform the bot that you don't have the intention to answer the question. If you
+want to quit the conversation altogether, you will need to type /Q again.
+
+Ctrl+C can be used as the universal quit command if you want to quit chatting
+when in the middle of a bot-asked question and when you don't feel like typing
+/Q twice.
+
+Magical contexts
+================
+
+By default, Vim ChatBot treats the first two responses as special, that is, the
+bot will store a separate set of responses for the phrases you type as your
+first and as your second lines, and will respond accordingly. This is to prevent
+absolute stupidity, such as saying "Hi!" in the middle of a conversation. The
+number of "magical contexts" (responses which should be treated specially) can
+be modified and is stored in the s:MagicalContexts variable.
+
+Database Modification
+=====================
+
+You can modify the database manually by adding or removing phrases in case you
+are not satisfied with something that the bot has learned or would like to teach
+it something without having to go through the process of teaching-by-chatting. 
+
+The database for Vim ChatBot is stored in the following way:
+
+<Phrase>:::[MagicalContextID]
+<Response1>
+<Response2>
+...
+<BLANK_LINE>
+
+Quirks
+======
+
+The database structure described above has an important consequence: when
+speaking to Vim ChatBot, never use a triple colon (:::) symbol in your phrases,
+they will confuse the bot and may make it behave more stupidly than normal.
+
+In the beginning of the conversation, the bot might seem not to recognize some
+of the phrases you taught it before - this is due to the magical contexts
+kicking in, the bot hasn't yet been taught to recognize that specific phrase in
+that particular position. This is normal behavior, just patiently repeat the
+lesson.
+
+If you have a Python-enabled version of Vim, ChatBot will utilize the Python
+random number generation algorithm from the "random" library. If your Vim is not
+Python-enabled, a simpler algorithm will be utilized instead, based on the idea
+suggested by Bee-9 at:
+http://vim.1045645.n5.nabble.com/simple-16-bit-random-number-generator-td2843842.html
+This algorithm is less efficient and will produce less random numbers, which may
+or may not be apparent in the actual conversation with the bot (your mileage may
+vary). At any rate, a Python-enabled Vim is recommended for more randomness, but
+not strictly required.
+
+==============================================================================
+Remember: Don't take Vim ChatBot seriously and just have fun! :)
+
