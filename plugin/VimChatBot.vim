@@ -1,10 +1,16 @@
-" Self-teaching chat bot (C) 2012 by Michael Kamensky, all rights reserved.
-" This script is distributed under Vim license.
+" VimChatBot.vim    : A self-teaching chat bot for Vim 
+" Version           : 1.2b
+" Maintainer        : Michael Kamensky <stavdev@mail.ru>
+" Last Modified     : 10/12/2012
+" License           : This script is released under the Vim License.
 " =========================================================================
 
 let s:ChatIteration = 1
 let s:MagicalContexts = 2
-let s:BotVersion = "1.2a"
+let s:BotVersion = "1.2b"
+
+let s:GlobalCPO = &cpo
+setlocal cpo&vim
 
 function! VCB_Random(min, max)
     if has("python")
@@ -190,7 +196,9 @@ endfunction
 function! MainChatLoop()
     let s:ChatIteration = 1
     let more_status = &more
+    let cpo_status = &cpo
     setlocal nomore
+    setlocal cpo&vim
     echohl Comment
     echo "Welcome to Agetian's ChatBot for Vim v" . s:BotVersion . "! Enjoy and have fun!\n"
     echo "Type /Q to choose not to answer the bot's question or to end the conversation.\n"
@@ -209,9 +217,11 @@ function! MainChatLoop()
 	let s:ChatIteration += 1
     endwhile
     let &more = more_status
+    let &cpo = cpo_status
 endfunction
 
 nnoremap <silent> \Cb :call MainChatLoop()<CR>
+let &cpo = s:GlobalCPO
 finish
 
 ------> HERE-DOCUMENT WITH THE CHAT BOT DATABASE BEGINS HERE <------
