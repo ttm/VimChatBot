@@ -42,9 +42,6 @@ If the <Leader>Cb command is already taken by something among your scripts, feel
 free to change the mapping (just search for nnoremap in the script file and
 change the mapping to another combination of keys).
 
-Alternatively, you can start Vim ChatBot by typing the following command:
-:call MainChatLoop()
-
 Macros
 ======
 
