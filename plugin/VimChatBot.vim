@@ -4,7 +4,7 @@
 
 let s:ChatIteration = 1
 let s:MagicalContexts = 2
-let s:BotVersion = "1.0"
+let s:BotVersion = "1.1"
 
 function! Random(min, max)
     if has("python")
@@ -17,6 +17,16 @@ function! Random(min, max)
 	let s:constrained_val = (s:random_val * a:max) / 65536 + a:min
 	return s:constrained_val
     endif
+endfunction
+
+function! Macroexpand(phrase)
+    let s:expanded_phrase = substitute(a:phrase, "\\$TIME\\$", strftime("%H:%M"), "g")
+    let s:expanded_phrase = substitute(s:expanded_phrase, "\\$TIME12\\$", strftime("%I:%M %p"), "g")
+    let s:expanded_phrase = substitute(s:expanded_phrase, "\\$WEEKDAY\\$", strftime("%A"), "g")
+    let s:expanded_phrase = substitute(s:expanded_phrase, "\\$DAY\\$", strftime("%d"), "g")
+    let s:expanded_phrase = substitute(s:expanded_phrase, "\\$MONTH\\$", strftime("%B"), "g")
+    let s:expanded_phrase = substitute(s:expanded_phrase, "\\$YEAR\\$", strftime("%Y"), "g")
+    return s:expanded_phrase
 endfunction
 
 function! GetLineMatchingPattern(pattern)
@@ -107,6 +117,7 @@ function! AI_Store_New_Response(pattern, response, iteration)
 	execute ("normal o" . a:pattern . ":::")
     endif
     execute ("normal o" . a:response)
+    execute ("normal o")
 endfunction
 
 function! AI_Respond(pattern, iteration) 
@@ -131,7 +142,7 @@ function! AI_Respond(pattern, iteration)
 	let s:request_signature = ":::"
     endif
     if s:chosen_response != -1
-	echo "ChatBot: " . getline(s:chosen_response) . "\n"
+	echo "ChatBot: " . Macroexpand(getline(s:chosen_response)) . "\n"
     else
 	echohl Comment
 	echo "ChatBot: I don't understand that. Can you please teach me what to say?\n"
@@ -143,7 +154,7 @@ function! AI_Respond(pattern, iteration)
 	    echohl N
 	    return
 	endif
-	echo "Human: " . s:suggested_response . "\n"
+	echo "Human: " . Macroexpand(s:suggested_response) . "\n"
 	call AI_Store_New_Response(a:pattern, s:suggested_response, a:iteration)
 	echohl Comment
 	echo "ChatBot: Thanks, I'll remember that!\n"
@@ -155,7 +166,7 @@ function! AI_Respond(pattern, iteration)
 	let s:requests = filter(s:lines, s:next_request)
 	if len(s:requests) != 0
 	    let s:decision = Random(0, len(s:requests) - 1)
-	    echo "ChatBot: " . s:requests[s:decision][:-s:resp_offset] . "\n"
+	    echo "ChatBot: " . Macroexpand(s:requests[s:decision][:-s:resp_offset]) . "\n"
 	    let s:taught_response = input("You say: ")
 	    if s:taught_response == "/Q" || s:taught_response =~ "^\\s*$"
 		echohl Comment
@@ -163,7 +174,7 @@ function! AI_Respond(pattern, iteration)
 		echohl None
 		return
 	    endif
-	    echo "Human: " . s:taught_response . "\n"
+	    echo "Human: " . Macroexpand(s:taught_response) . "\n"
 	    let s:response_group_loc = GetLineMatchingPattern(s:requests[s:decision][:-s:resp_offset] . s:request_signature)
 	    let s:already_has_resp = HasResponse(s:response_group_loc, s:taught_response)
 	    if s:already_has_resp != 1
@@ -193,7 +204,7 @@ function! MainChatLoop()
 	    echo "ChatBot: Bye-bye!\n"
 	    break
 	endif
-	echo "Human: " . s:HumanResponse . "\n"
+	echo "Human: " . Macroexpand(s:HumanResponse) . "\n"
 	call AI_Respond(s:HumanResponse, s:ChatIteration)
 	let s:ChatIteration += 1
     endwhile
@@ -217,6 +228,7 @@ Not a whole lot!
 Not much!
 
 How's it going?:::1
+Doing good, thanks!
 Good, thanks!
 
 Are you a robot?:::2
@@ -233,13 +245,14 @@ No...
 No
 
 What about you?:::
-Same! :)
+Same! 
 Doing good, thanks!
 
 Are you a robot?:::
 No, of course not!
 
 Should I work today?:::
+No, you shouldn't.
 Probably :P
 Yes, of course!
 I don't know, to be honest.
@@ -248,14 +261,27 @@ What's new?:::2
 Not a whole lot!
 
 What's new?:::1
+Not much, what about you?
 Not much!
 
 What are you doing?:::2
 Talking to you!
 
 Are you an alien?:::
+No.
+Yes, sure!
 Yes, yes I am.
 You could say so.
 
 What about you?:::2
+Doing good!
 I'm great, thanks!
+
+
+What time is it?:::
+It's $TIME$.
+
+
+What day of the week is it?:::
+It's $WEEKDAY$!
+
