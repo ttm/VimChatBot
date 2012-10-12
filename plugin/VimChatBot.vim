@@ -4,9 +4,9 @@
 
 let s:ChatIteration = 1
 let s:MagicalContexts = 2
-let s:BotVersion = "1.2"
+let s:BotVersion = "1.2a"
 
-function! Random(min, max)
+function! VCB_Random(min, max)
     if has("python")
 	python from random import randint
 	python from vim import command, eval
@@ -19,7 +19,7 @@ function! Random(min, max)
     endif
 endfunction
 
-function! Macroexpand(phrase)
+function! VCB_Macroexpand(phrase)
     let expanded_phrase = substitute(a:phrase, "\\$TIME\\$", strftime("%H:%M"), "g")
     let expanded_phrase = substitute(expanded_phrase, "\\$TIME12\\$", strftime("%I:%M %p"), "g")
     let expanded_phrase = substitute(expanded_phrase, "\\$WEEKDAY\\$", strftime("%A"), "g")
@@ -29,7 +29,7 @@ function! Macroexpand(phrase)
     return expanded_phrase
 endfunction
 
-function! GetLineMatchingPattern(pattern)
+function! VCB_GetLineMatchingPattern(pattern)
     let num_line = 1
     let max_line = line("$")
     while num_line != max_line
@@ -41,7 +41,7 @@ function! GetLineMatchingPattern(pattern)
     return -1
 endfunction
 
-function! CountResponses(start_line)
+function! VCB_CountResponses(start_line)
     let num_responses = 0
     let cur_line = a:start_line + 1
     let max_line = line("$")
@@ -58,7 +58,7 @@ function! CountResponses(start_line)
     return num_responses
 endfunction
 
-function! HasResponse(start_line, resp)
+function! VCB_HasResponse(start_line, resp)
     let has_response = 0
     let cur_line = a:start_line + 1
     let max_line = line("$")
@@ -77,17 +77,17 @@ function! HasResponse(start_line, resp)
     return has_response
 endfunction
 
-function! AI_AddResponse(pattern, new_resp, iteration)
+function! VCB_AI_AddResponse(pattern, new_resp, iteration)
     let signature = ":::"
     if a:iteration <= s:MagicalContexts
 	let signature = signature . a:iteration
     endif
-    let resp_block = GetLineMatchingPattern(a:pattern . signature)
+    let resp_block = VCB_GetLineMatchingPattern(a:pattern . signature)
     if resp_block == -1
-	call AI_Store_New_Response(a:pattern, a:new_resp, a:iteration)
+	call VCB_AI_Store_New_Response(a:pattern, a:new_resp, a:iteration)
 	return 0
     endif
-    let has_resp = HasResponse(resp_block, a:new_resp)
+    let has_resp = VCB_HasResponse(resp_block, a:new_resp)
     if has_resp == 1
 	return -1
     endif
@@ -96,20 +96,20 @@ function! AI_AddResponse(pattern, new_resp, iteration)
     return 0
 endfunction
 
-function! AI_Decide_Response(pattern)
-    let resp_block = GetLineMatchingPattern(a:pattern)
+function! VCB_AI_Decide_Response(pattern)
+    let resp_block = VCB_GetLineMatchingPattern(a:pattern)
     if resp_block == -1
 	return -1
     endif
-    let has_resp = HasResponse(resp_block, a:pattern)
+    let has_resp = VCB_HasResponse(resp_block, a:pattern)
     if has_resp == -1
 	return -1
     endif
-    let num_responses = CountResponses(resp_block)
-    return resp_block + Random(1, num_responses)
+    let num_responses = VCB_CountResponses(resp_block)
+    return resp_block + VCB_Random(1, num_responses)
 endfunction
 
-function! AI_Store_New_Response(pattern, response, iteration)
+function! VCB_AI_Store_New_Response(pattern, response, iteration)
     execute ("normal Go")
     if a:iteration <= s:MagicalContexts
 	execute ("normal o" . a:pattern . ":::" . a:iteration)
@@ -120,9 +120,9 @@ function! AI_Store_New_Response(pattern, response, iteration)
     execute ("normal o")
 endfunction
 
-function! AI_Respond(pattern, iteration) 
+function! VCB_AI_Respond(pattern, iteration) 
     if a:iteration <= s:MagicalContexts
-	let chosen_response = AI_Decide_Response("^" . a:pattern . ":::" . a:iteration . "$")
+	let chosen_response = VCB_AI_Decide_Response("^" . a:pattern . ":::" . a:iteration . "$")
 	let resp_offset = 5
 	let request_group = 'v:val =~ ".*:::' . a:iteration . '$"'
 	let request_signature = ":::" . a:iteration
@@ -135,14 +135,14 @@ function! AI_Respond(pattern, iteration)
 	    let next_request = 'v:val =~ ".*:::' . (a:iteration + 1) . '$"'
 	endif
     else
-	let chosen_response = AI_Decide_Response("^" . a:pattern . ":::$")
+	let chosen_response = VCB_AI_Decide_Response("^" . a:pattern . ":::$")
 	let resp_offset = 4
 	let request_group = 'v:val =~ ".*:::$"'
 	let next_request = 'v:val =~ ".*:::$"'
 	let request_signature = ":::"
     endif
     if chosen_response != -1
-	echo "ChatBot: " . Macroexpand(getline(chosen_response)) . "\n"
+	echo "ChatBot: " . VCB_Macroexpand(getline(chosen_response)) . "\n"
     else
 	echohl Comment
 	echo "ChatBot: I don't understand that. Can you please teach me what to say?\n"
@@ -154,19 +154,19 @@ function! AI_Respond(pattern, iteration)
 	    echohl N
 	    return
 	endif
-	echo "Human: " . Macroexpand(suggested_response) . "\n"
-	call AI_Store_New_Response(a:pattern, suggested_response, a:iteration)
+	echo "Human: " . VCB_Macroexpand(suggested_response) . "\n"
+	call VCB_AI_Store_New_Response(a:pattern, suggested_response, a:iteration)
 	echohl Comment
 	echo "ChatBot: Thanks, I'll remember that!\n"
 	echohl None
     endif
-    let decide_to_ask_back = Random(0, 1)
+    let decide_to_ask_back = VCB_Random(0, 1)
     if decide_to_ask_back
 	let lines = getline(1, line("$"))
 	let requests = filter(lines, next_request)
 	if len(requests) != 0
-	    let decision = Random(0, len(requests) - 1)
-	    echo "ChatBot: " . Macroexpand(requests[decision][:-resp_offset]) . "\n"
+	    let decision = VCB_Random(0, len(requests) - 1)
+	    echo "ChatBot: " . VCB_Macroexpand(requests[decision][:-resp_offset]) . "\n"
 	    let taught_response = input("You say: ")
 	    if taught_response == "/Q" || taught_response =~ "^\\s*$"
 		echohl Comment
@@ -174,11 +174,11 @@ function! AI_Respond(pattern, iteration)
 		echohl None
 		return
 	    endif
-	    echo "Human: " . Macroexpand(taught_response) . "\n"
-	    let response_group_loc = GetLineMatchingPattern(requests[decision][:-resp_offset] . request_signature)
-	    let already_has_resp = HasResponse(response_group_loc, taught_response)
+	    echo "Human: " . VCB_Macroexpand(taught_response) . "\n"
+	    let response_group_loc = VCB_GetLineMatchingPattern(requests[decision][:-resp_offset] . request_signature)
+	    let already_has_resp = VCB_HasResponse(response_group_loc, taught_response)
 	    if already_has_resp != 1
-		call AI_AddResponse(requests[decision][:-resp_offset], taught_response, a:iteration)
+		call VCB_AI_AddResponse(requests[decision][:-resp_offset], taught_response, a:iteration)
 		echohl Comment
 		echo "ChatBot: Oh, thanks, that's a good way to respond to that! I'll remember it!\n"
 		echohl None
@@ -204,8 +204,8 @@ function! MainChatLoop()
 	    echo "ChatBot: Bye-bye!\n"
 	    break
 	endif
-	echo "Human: " . Macroexpand(HumanResponse) . "\n"
-	call AI_Respond(HumanResponse, s:ChatIteration)
+	echo "Human: " . VCB_Macroexpand(HumanResponse) . "\n"
+	call VCB_AI_Respond(HumanResponse, s:ChatIteration)
 	let s:ChatIteration += 1
     endwhile
     let &more = more_status
@@ -224,6 +224,7 @@ How's it going?:::2
 I'm doing good, thanks!
 
 What's new?:::
+Nothing.
 Not a whole lot!
 Not much!
 
@@ -243,7 +244,6 @@ Talking to you!
 
 Are you a robot?:::1
 No...
-No
 
 What about you?:::
 Same! 
@@ -253,6 +253,7 @@ Are you a robot?:::
 No, of course not!
 
 Should I work today?:::
+I guess so.
 No, you shouldn't.
 Probably :P
 Yes, of course!
@@ -285,4 +286,8 @@ It's $TIME$.
 
 What day of the week is it?:::
 It's $WEEKDAY$!
+
+
+What year is it?:::
+It's $YEAR$.
 
