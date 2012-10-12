@@ -48,8 +48,8 @@ Alternatively, you can start Vim ChatBot by typing the following command:
 Macros
 ======
 
-You can use the following macros when typing answers, the bot will also utilize them
-when learning to use the phrase from you:
+You can use the following macros when typing answers, the bot will also utilize
+them when learning to use the phrase from you:
 
 $TIME$ - refers to the current time.
 $TIME12$ - (experimental) refers to the current time in 12-hour format.
