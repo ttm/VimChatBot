@@ -1,7 +1,7 @@
 " VimChatBot.vim    : A self-teaching chat bot for Vim 
-" Version           : 1.3
+" Version           : 1.4
 " Maintainer        : Michael Kamensky <stavdev@mail.ru>
-" Last Modified     : 10/12/2012
+" Last Modified     : 10/13/2012
 " License           : This script is released under the Vim License.
 " ============================================================================
 " Usage             : By default, the chat bot is mapped to <Leader>Cb
@@ -43,7 +43,7 @@ nnoremap <unique> <silent> <Leader>Cb :call VCB_MainChatLoop()<CR>
 " Script variables
 let s:ChatIteration = 1
 let s:MagicalContexts = 2
-let s:BotVersion = "1.3"
+let s:BotVersion = "1.4"
 
 " Vi compatibility mode workaround
 let s:GlobalCPO = &cpo
@@ -69,6 +69,9 @@ function! s:VCB_Macroexpand(phrase)
     let expanded_phrase = substitute(expanded_phrase, "\\$DAY\\$", strftime("%d"), "g")
     let expanded_phrase = substitute(expanded_phrase, "\\$MONTH\\$", strftime("%B"), "g")
     let expanded_phrase = substitute(expanded_phrase, "\\$YEAR\\$", strftime("%Y"), "g")
+    let expanded_phrase = substitute(expanded_phrase, "\\$HOUR\\$", strftime("%H"), "g")
+    let expanded_phrase = substitute(expanded_phrase, "\\$MINUTE\\$", strftime("%M"), "g")
+    let expanded_phrase = substitute(expanded_phrase, "\\$SECOND\\$", strftime("%S"), "g")
     return expanded_phrase
 endfunction
 
@@ -275,6 +278,7 @@ Not a whole lot!
 Not much!
 
 How's it going?:::1
+Pretty good!
 Good!
 Doing good, thanks!
 Good, thanks!

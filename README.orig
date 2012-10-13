@@ -54,6 +54,9 @@ $DAY$ - refers to the current day.
 $WEEKDAY$ - refers to the current day of the week.
 $MONTH$ - refers to the current month.
 $YEAR$ - refers to the current year.
+$HOUR$ - refers to the current hour.
+$MINUTE$ - refers to the current minute.
+$SECOND$ - refers to the current second.
 
 Finishing the conversation
 ==========================
