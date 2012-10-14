@@ -1,7 +1,7 @@
 " VimChatBot.vim    : A self-teaching chat bot for Vim 
-" Version           : 1.4
+" Version           : 1.5
 " Maintainer        : Michael Kamensky <stavdev@mail.ru>
-" Last Modified     : 10/13/2012
+" Last Modified     : 10/14/2012
 " License           : This script is released under the Vim License.
 " ============================================================================
 " Usage             : By default, the chat bot is mapped to <Leader>Cb
@@ -43,7 +43,7 @@ nnoremap <unique> <silent> <Leader>Cb :call VCB_MainChatLoop()<CR>
 " Script variables
 let s:ChatIteration = 1
 let s:MagicalContexts = 2
-let s:BotVersion = "1.4"
+let s:BotVersion = "1.5"
 
 " Vi compatibility mode workaround
 let s:GlobalCPO = &cpo
@@ -197,7 +197,7 @@ function! s:VCB_AI_Respond(pattern, iteration)
 	if suggested_response == "/Q" || suggested_response =~ "^\\s*$"
 	    echohl Comment
 	    echo "ChatBot: Fine, don't teach me if you don't want to!\n"
-	    echohl N
+	    echohl None
 	    return
 	endif
 	echo "Human: " . s:VCB_Macroexpand(suggested_response) . "\n"
@@ -208,11 +208,16 @@ function! s:VCB_AI_Respond(pattern, iteration)
     endif
     let decide_to_ask_back = s:VCB_Random(0, 1)
     if decide_to_ask_back
+	call s:VCB_AI_AskBack(resp_offset, a:iteration + 1, next_request, request_signature)
+    endif
+endfunction
+
+function! s:VCB_AI_AskBack(resp_offset, iteration, next_request, request_signature)
 	let lines = getline(1, line("$"))
-	let requests = filter(lines, next_request)
+	let requests = filter(lines, a:next_request)
 	if len(requests) != 0
 	    let decision = s:VCB_Random(0, len(requests) - 1)
-	    echo "ChatBot: " . s:VCB_Macroexpand(requests[decision][:-resp_offset]) . "\n"
+	    echo "ChatBot: " . s:VCB_Macroexpand(requests[decision][:-a:resp_offset]) . "\n"
 	    let taught_response = input("You say: ")
 	    if taught_response == "/Q" || taught_response =~ "^\\s*$"
 		echohl Comment
@@ -221,16 +226,17 @@ function! s:VCB_AI_Respond(pattern, iteration)
 		return
 	    endif
 	    echo "Human: " . s:VCB_Macroexpand(taught_response) . "\n"
-	    let response_group_loc = s:VCB_GetLineMatchingPattern(requests[decision][:-resp_offset] . request_signature)
+	    let response_group_loc = s:VCB_GetLineMatchingPattern(requests[decision][:-a:resp_offset] . a:request_signature)
 	    let already_has_resp = s:VCB_HasResponse(response_group_loc, taught_response)
 	    if already_has_resp != 1
-		call s:VCB_AI_AddResponse(requests[decision][:-resp_offset], taught_response, a:iteration)
+		call s:VCB_AI_AddResponse(requests[decision][:-a:resp_offset], taught_response, a:iteration)
 		echohl Comment
 		echo "ChatBot: Oh, thanks, that's a good way to respond to that! I'll remember it!\n"
 		echohl None
 	    endif
+	    return 1
 	endif
-    endif
+	return 0
 endfunction
 
 function! VCB_MainChatLoop()
@@ -244,6 +250,15 @@ function! VCB_MainChatLoop()
     echo "Type /Q to choose not to answer the bot's question or to end the conversation.\n"
     echohl None
     while 1
+	if s:ChatIteration == 1
+	    let speak_first = s:VCB_Random(0, 1)
+	    if speak_first
+		let spoken_first = s:VCB_AI_AskBack(5, 1, 'v:val =~ ".*:::1$"', ":::1")
+		if spoken_first == 1
+		    let s:ChatIteration += 1
+		endif
+	    endif
+	endif
 	let HumanResponse = input("You say: ")
 	if HumanResponse =~ "^\\s*$"
 	    continue
@@ -271,17 +286,16 @@ Hi!
 
 How's it going?:::2
 I'm doing good, thanks!
+Pretty good!
+Good!
+Doing good, thanks!
+Good, thanks!
+
 
 What's new?:::
 Nothing.
 Not a whole lot!
 Not much!
-
-How's it going?:::1
-Pretty good!
-Good!
-Doing good, thanks!
-Good, thanks!
 
 Are you a robot?:::2
 No, I'm an alien!
@@ -291,9 +305,6 @@ What are you doing?:::
 Nothing special.
 Talking to a robot.
 Talking to you!
-
-Are you a robot?:::1
-No...
 
 Are you a robot?:::
 No, of course not!
@@ -307,24 +318,14 @@ Yes, of course!
 I don't know, to be honest.
 
 What's new?:::2
-Not a whole lot!
-
-What's new?:::1
-Not much, what about you?
 Not much!
-
-What are you doing?:::2
-Talking to you!
+Not a whole lot!
 
 Are you an alien?:::
 No.
 Yes, sure!
 Yes, yes I am.
 You could say so.
-
-What about you?:::2
-Doing good!
-I'm great, thanks!
 
 
 What time is it?:::
