@@ -1,5 +1,5 @@
 " VimChatBot.vim    : A self-teaching chat bot for Vim 
-" Version           : 1.5
+" Version           : 1.6
 " Maintainer        : Michael Kamensky <stavdev@mail.ru>
 " Last Modified     : 10/14/2012
 " License           : This script is released under the Vim License.
@@ -43,7 +43,7 @@ nnoremap <unique> <silent> <Leader>Cb :call VCB_MainChatLoop()<CR>
 " Script variables
 let s:ChatIteration = 1
 let s:MagicalContexts = 2
-let s:BotVersion = "1.5"
+let s:BotVersion = "1.6"
 
 " Vi compatibility mode workaround
 let s:GlobalCPO = &cpo
@@ -243,8 +243,10 @@ function! VCB_MainChatLoop()
     let s:ChatIteration = 1
     let more_status = &more
     let cpo_status = &cpo
+    let case_status = &ignorecase
     setlocal nomore
     setlocal cpo&vim
+    setlocal ignorecase
     echohl Comment
     echo "Welcome to Agetian's ChatBot for Vim v" . s:BotVersion . "! Enjoy and have fun!\n"
     echo "Type /Q to choose not to answer the bot's question or to end the conversation.\n"
@@ -273,6 +275,7 @@ function! VCB_MainChatLoop()
     endwhile
     let &more = more_status
     let &cpo = cpo_status
+    let &ignorecase = case_status
 endfunction
 
 let &cpo = s:GlobalCPO
