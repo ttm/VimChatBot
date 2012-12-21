@@ -1,7 +1,7 @@
 " VimChatBot.vim    : A self-teaching chat bot for Vim 
-" Version           : 1.6
+" Version           : 1.7
 " Maintainer        : Michael Kamensky <stavdev@mail.ru>
-" Last Modified     : 10/14/2012
+" Last Modified     : 12/21/2012
 " License           : This script is released under the Vim License.
 " ============================================================================
 " Usage             : By default, the chat bot is mapped to <Leader>Cb
@@ -43,7 +43,7 @@ nnoremap <unique> <silent> <Leader>Cb :call VCB_MainChatLoop()<CR>
 " Script variables
 let s:ChatIteration = 1
 let s:MagicalContexts = 2
-let s:BotVersion = "1.6"
+let s:BotVersion = "1.7"
 
 " Vi compatibility mode workaround
 let s:GlobalCPO = &cpo
@@ -191,7 +191,7 @@ function! s:VCB_AI_Respond(pattern, iteration)
 	echo "ChatBot: " . s:VCB_Macroexpand(getline(chosen_response)) . "\n"
     else
 	echohl Comment
-	echo "ChatBot: I don't understand that. Can you please teach me what to say?\n"
+	echo "ChatBot: I don't understand that. Can you please tell me what you would say?\n"
 	echohl None
 	let suggested_response = input("You say: ")
 	if suggested_response == "/Q" || suggested_response =~ "^\\s*$"
