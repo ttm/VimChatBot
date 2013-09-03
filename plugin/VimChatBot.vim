@@ -1,5 +1,5 @@
 " VimChatBot.vim    : A self-teaching chat bot for Vim 
-" Version           : 1.7
+" Version           : 1.8
 " Maintainer        : Michael Kamensky <stavdev@mail.ru>
 " Last Modified     : 12/21/2012
 " License           : This script is released under the Vim License.
@@ -24,9 +24,9 @@
 "                   : Ctrl+C can be used to forcefully finish the conversation
 "                   : without having to type /Q once or twice.
 
-if v:version < 700
+if v:version < 704
     echohl Error
-    echo "ERROR: Vim v7.0 or newer is required for Vim ChatBot!"
+    echo "ERROR: Vim v7.4 or newer is required for Vim ChatBot!"
     echohl None
     finish
 endif
@@ -43,7 +43,7 @@ nnoremap <unique> <silent> <Leader>Cb :call VCB_MainChatLoop()<CR>
 " Script variables
 let s:ChatIteration = 1
 let s:MagicalContexts = 2
-let s:BotVersion = "1.7"
+let s:BotVersion = "1.8"
 
 " Vi compatibility mode workaround
 let s:GlobalCPO = &cpo
@@ -194,13 +194,13 @@ function! s:VCB_AI_Respond(pattern, iteration)
 	echo "ChatBot: I don't understand that. Can you please tell me what you would say?\n"
 	echohl None
 	let suggested_response = input("You say: ")
+        echo "\n"
 	if suggested_response == "/Q" || suggested_response =~ "^\\s*$"
 	    echohl Comment
 	    echo "ChatBot: Fine, don't teach me if you don't want to!\n"
 	    echohl None
 	    return
 	endif
-	echo "Human: " . s:VCB_Macroexpand(suggested_response) . "\n"
 	call s:VCB_AI_Store_New_Response(a:pattern, suggested_response, a:iteration)
 	echohl Comment
 	echo "ChatBot: Thanks, I'll remember that!\n"
@@ -219,13 +219,13 @@ function! s:VCB_AI_AskBack(resp_offset, iteration, next_request, request_signatu
 	    let decision = s:VCB_Random(0, len(requests) - 1)
 	    echo "ChatBot: " . s:VCB_Macroexpand(requests[decision][:-a:resp_offset]) . "\n"
 	    let taught_response = input("You say: ")
+            echo "\n"
 	    if taught_response == "/Q" || taught_response =~ "^\\s*$"
 		echohl Comment
 		echo "ChatBot: Fine, don't want to answer me - don't answer.\n"
 		echohl None
 		return
 	    endif
-	    echo "Human: " . s:VCB_Macroexpand(taught_response) . "\n"
 	    let response_group_loc = s:VCB_GetLineMatchingPattern(requests[decision][:-a:resp_offset] . a:request_signature)
 	    let already_has_resp = s:VCB_HasResponse(response_group_loc, taught_response)
 	    if already_has_resp != 1
@@ -262,6 +262,7 @@ function! VCB_MainChatLoop()
 	    endif
 	endif
 	let HumanResponse = input("You say: ")
+        echo "\n"
 	if HumanResponse =~ "^\\s*$"
 	    continue
 	endif
@@ -269,7 +270,6 @@ function! VCB_MainChatLoop()
 	    echo "ChatBot: Bye-bye!\n"
 	    break
 	endif
-	echo "Human: " . s:VCB_Macroexpand(HumanResponse) . "\n"
 	call s:VCB_AI_Respond(HumanResponse, s:ChatIteration)
 	let s:ChatIteration += 1
     endwhile
