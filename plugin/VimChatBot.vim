@@ -1,7 +1,7 @@
 " VimChatBot.vim    : A self-teaching chat bot for Vim 
-" Version           : 1.8
+" Version           : 1.9
 " Maintainer        : Michael Kamensky <stavdev@mail.ru>
-" Last Modified     : 12/21/2012
+" Last Modified     : 04/11/2014
 " License           : This script is released under the Vim License.
 " ============================================================================
 " Usage             : By default, the chat bot is mapped to <Leader>Cb
@@ -43,7 +43,7 @@ nnoremap <unique> <silent> <Leader>Cb :call VCB_MainChatLoop()<CR>
 " Script variables
 let s:ChatIteration = 1
 let s:MagicalContexts = 2
-let s:BotVersion = "1.8"
+let s:BotVersion = "1.9"
 
 " Vi compatibility mode workaround
 let s:GlobalCPO = &cpo
