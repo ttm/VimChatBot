@@ -42,8 +42,9 @@ nnoremap <Leader>Cb :call VCB_MainChatLoop()<CR>
 
 " Script variables
 let s:ChatIteration = 1
+let s:ChatIteration_ = 0
 let s:MagicalContexts = 2
-let s:BotVersion = "1.9"
+let s:BotVersion = "1.9prv"
 
 " Vi compatibility mode workaround
 let s:GlobalCPO = &cpo
@@ -87,11 +88,12 @@ function! s:VCB_Macroexpand(phrase) " {{{
   let expanded_phrase = substitute(expanded_phrase, "\\$MINUTE\\$", strftime("%M"), "g")
   let expanded_phrase = substitute(expanded_phrase, "\\$SECOND\\$", strftime("%S"), "g")
   let expanded_phrase = substitute(expanded_phrase, "\\$SECONDD\\$", strftime("%S") . 'YIUUIYIU', "g")
-  let expanded_phrase = substitute(expanded_phrase, "\\$AABCD\\$", string(g:aa_status), "g")
+  " let expanded_phrase = substitute(expanded_phrase, "\\$AABCD\\$", string(g:aa_status), "g")
   return expanded_phrase
 endfunction " }}}
 
 function! s:VCB_GetLineMatchingPattern(pattern) " {{{
+  " readfile
   let num_line = 1
   let max_line = line("$")
   while num_line != max_line
@@ -180,8 +182,9 @@ function! s:VCB_AI_Store_New_Response(pattern, response, iteration) " {{{
   " endif
   " execute ("normal o" . a:response)
   " execute ("normal o")
-  execute "!cat '" . a:pattern .":::' >> " . expand("%:p")
-  execute "!cat '\n" . a:response ."' >> " . expand("%:p")
+  execute "!echo '" . a:pattern .":::' >> " . expand("%:p")
+  execute "!echo " . a:response . "' >> " . expand("%:p")
+  " or writefile
 endfunction " }}}
 
 function! s:VCB_AI_Respond(pattern, iteration)  " {{{
@@ -268,8 +271,8 @@ function! VCB_MainChatLoop() " {{{
   setlocal cpo&vim
   setlocal ignorecase
   echohl Comment
-  echo "Welcome to Agetian's ChatBot for Vim v" . s:BotVersion . "! Enjoy and have fun!\n"
-  echo "Type /Q to choose not to answer the bot's question or to end the conversation.\n"
+  echo "I am prv v" . s:BotVersion . "! A bot to help you probe interaction with unknown life forms. Enjoy and have fun!\n"
+  echo "Type /Q to choose not to answer the question or to end the conversation.\n"
   echohl None
   while 1
     if s:ChatIteration == 1
@@ -296,6 +299,8 @@ function! VCB_MainChatLoop() " {{{
   let &more = more_status
   let &cpo = cpo_status
   let &ignorecase = case_status
+  let s:ChatIteration_ = (s:ChatIteration_ + 1) % s:MagicalContexts
+  let s:ChatIteration = s:ChatIteration_ + 1
 endfunction " }}}
 
 let &cpo = s:GlobalCPO
@@ -353,6 +358,7 @@ You could say so.
 
 
 What time is it?:::
+more then midnight
 8am
 It's $TIME$.
 
@@ -362,22 +368,28 @@ It's $WEEKDAY$!
 
 
 What year is it?:::
+aksjd
 2018
 It's $YEAR$.
 
 SS:::1
+qwe qwe qwe
+aosdij
 AA
 It's $SECONDD$.
 SS:::2
+asd
 It's $SECONDD$.
 SS:::
 It's $SECONDD$.
 
 AA:::
+asd
 It's $AABCD$.
 
 
 AA:::1
+banana
 AA
 dsaidjis
 
@@ -404,4 +416,4 @@ saudi
 
 Hi!:::
 b
-
+bhuyugg:::
