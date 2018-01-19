@@ -15,6 +15,7 @@
 "                   : buffer as it learns new phrases from the human, thus
 "                   : creating and updating its database of known phrases.
 "                   : 
+"                   yesss
 "                   : Type /Q to finish the conversation (unless the bot is
 "                   : in the middle of asking you something). If the bot is
 "                   : asking you something, /Q aborts the question without
@@ -77,7 +78,7 @@ function! Randint(min, max) " {{{
 endfunction " }}}
 
 function! s:VCB_Macroexpand(phrase) " {{{
-  echom 'phrase' a:phrase
+  " echom 'phrase' a:phrase
   let expanded_phrase = substitute(a:phrase, "\\$TIME\\$", strftime("%H:%M"), "g")
   let expanded_phrase = substitute(expanded_phrase, "\\$TIME12\\$", strftime("%I:%M %p"), "g")
   let expanded_phrase = substitute(expanded_phrase, "\\$WEEKDAY\\$", strftime("%A"), "g")
@@ -87,21 +88,29 @@ function! s:VCB_Macroexpand(phrase) " {{{
   let expanded_phrase = substitute(expanded_phrase, "\\$HOUR\\$", strftime("%H"), "g")
   let expanded_phrase = substitute(expanded_phrase, "\\$MINUTE\\$", strftime("%M"), "g")
   let expanded_phrase = substitute(expanded_phrase, "\\$SECOND\\$", strftime("%S"), "g")
-  let expanded_phrase = substitute(expanded_phrase, "\\$SECONDD\\$", strftime("%S") . 'YIUUIYIU', "g")
   " let expanded_phrase = substitute(expanded_phrase, "\\$AABCD\\$", string(g:aa_status), "g")
   return expanded_phrase
 endfunction " }}}
 
 function! s:VCB_GetLineMatchingPattern(pattern) " {{{
   " readfile
-  let num_line = 1
-  let max_line = line("$")
-  while num_line != max_line
-    if getline(num_line) =~ a:pattern
-      return num_line
+  let tfile = g:prvbot_datadir . 'botphrases.prv'
+  let lines = readfile(tfile)
+  let linen = 1
+  for line in lines
+    if line =~ a:pattern
+      return linen
     endif
-    let num_line += 1
-  endwhile
+    let linen += 1
+  endfor
+  " let num_line = 1
+  " let max_line = line("$")
+  " while num_line != max_line
+  "   if getline(num_line) =~ a:pattern
+  "     return num_line
+  "   endif
+  "   let num_line += 1
+  " endwhile
   return -1
 endfunction " }}}
 
@@ -129,16 +138,27 @@ function! s:VCB_HasResponse(start_line, resp) " {{{
   if a:start_line <= 0
     return -1
   endif
-  while cur_line < max_line
-    if getline(cur_line) =~ a:resp
+  let tfile = g:prvbot_datadir . 'botphrases.prv'
+  let lines = readfile(tfile)
+  for line in lines
+    if line =~ a:resp
       let has_response = 1
       break
-    elseif getline(cur_line) =~ "^\\s*$"
+    elseif line =~ "^\\s*$"
       break
     endif
-    let cur_line += 1
-  endwhile
+  endfor
   return has_response
+  " while cur_line < max_line
+  "   if getline(cur_line) =~ a:resp
+  "     let has_response = 1
+  "     break
+  "   elseif getline(cur_line) =~ "^\\s*$"
+  "     break
+  "   endif
+  "   let cur_line += 1
+  " endwhile
+  " return has_response
 endfunction " }}}
 
 function! s:VCB_AI_AddResponse(pattern, new_resp, iteration) " {{{
@@ -173,6 +193,8 @@ function! s:VCB_AI_Decide_Response(pattern) " {{{
   return resp_block + s:VCB_Random(1, num_responses)
 endfunction " }}}
 
+let g:prvbot_vimpath = expand('%:p:h')
+let g:prvbot_datadir = expand('%:p:h') . '/data/'
 function! s:VCB_AI_Store_New_Response(pattern, response, iteration) " {{{
   " execute ("normal Go")
   " if a:iteration <= s:MagicalContexts
@@ -182,8 +204,12 @@ function! s:VCB_AI_Store_New_Response(pattern, response, iteration) " {{{
   " endif
   " execute ("normal o" . a:response)
   " execute ("normal o")
-  execute "!echo '" . a:pattern .":::' >> " . expand("%:p")
-  execute "!echo " . a:response . "' >> " . expand("%:p")
+
+  let tfile = g:prvbot_datadir . 'botphrases.prv'
+  call writefile([a:pattern . ':::'], tfile, 'as')
+  " execute "!echo '" . a:pattern .":::' >> " . expand("%:p")
+  call writefile([a:response], tfile, 'as')
+  " execute "!echo " . a:response . "' >> " . expand("%:p")
   " or writefile
 endfunction " }}}
 
@@ -210,7 +236,8 @@ function! s:VCB_AI_Respond(pattern, iteration)  " {{{
   endif
   echo 'chosen response' chosen_response
   if chosen_response != -1
-    echo "ChatBot: " . s:VCB_Macroexpand(getline(chosen_response)) . "\n"
+    " echo "ChatBot: " . s:VCB_Macroexpand(getline(chosen_response)) . "\n"
+    echo "ChatBot: " . s:VCB_Macroexpand("boom xacalaca") . "\n"
   else
     echohl Comment
     echo "ChatBot: I don't understand that. Can you please tell me what you would say?\n"
