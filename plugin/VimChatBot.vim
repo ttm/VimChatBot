@@ -106,7 +106,7 @@ function! s:VCB_GetLineMatchingPattern(pattern) " {{{
   " let num_line = 1
   " let max_line = line("$")
   " while num_line != max_line
-  "   if getline(num_line) =~ a:pattern
+  "   if GetLine(num_line) =~ a:pattern
   "     return num_line
   "   endif
   "   let num_line += 1
@@ -122,7 +122,7 @@ function! s:VCB_CountResponses(start_line) " {{{
     return -1
   endif
   while cur_line < max_line
-    if getline(cur_line) =~ "^\\s*$"
+    if GetLine(cur_line) =~ "^\\s*$"
       break
     endif
     let cur_line += 1
@@ -150,10 +150,10 @@ function! s:VCB_HasResponse(start_line, resp) " {{{
   endfor
   return has_response
   " while cur_line < max_line
-  "   if getline(cur_line) =~ a:resp
+  "   if GetLine(cur_line) =~ a:resp
   "     let has_response = 1
   "     break
-  "   elseif getline(cur_line) =~ "^\\s*$"
+  "   elseif GetLine(cur_line) =~ "^\\s*$"
   "     break
   "   endif
   "   let cur_line += 1
@@ -236,7 +236,7 @@ function! s:VCB_AI_Respond(pattern, iteration)  " {{{
   endif
   echo 'chosen response' chosen_response
   if chosen_response != -1
-    " echo "ChatBot: " . s:VCB_Macroexpand(getline(chosen_response)) . "\n"
+    " echo "ChatBot: " . s:VCB_Macroexpand(GetLine(chosen_response)) . "\n"
     echo "ChatBot: " . s:VCB_Macroexpand("boom xacalaca") . "\n"
   else
     echohl Comment
@@ -262,7 +262,7 @@ function! s:VCB_AI_Respond(pattern, iteration)  " {{{
 endfunction " }}}
 
 function! s:VCB_AI_AskBack(resp_offset, iteration, next_request, request_signature) " {{{
-  let lines = getline(1, line("$"))
+  let lines = GetLine(1, line("$"))
   let requests = filter(lines, a:next_request)
   if len(requests) != 0
     let decision = s:VCB_Random(0, len(requests) - 1)
